@@ -5,7 +5,9 @@ const API_ROOT = 'https://cnodejs.org/api/v1'
 const urlList = {
   TopicList: '/topics',
   topicDetails: '/topic',
-  topicCollect: '/topic_collect/collect'
+  topicCollect: '/topic_collect/collect',
+  checkToken: '/accesstoken',
+  userInfo: '/user',
 }
 
 export default {
@@ -22,16 +24,10 @@ export default {
     return apiRequest( API_ROOT + urlList.topicDetails + '/' + id, options)
   },
   /**
-   * 获取回复详情
+   * 验证accessToken
    */
-  // getRepliys(topic_id) {
-  //   return apiRequest( API_ROOT + urlList.repliyShow,{
-  //     params: {
-  //       topic_id: topic_id,
-  //       page: 1,
-  //       page_size: 100
-  //     }
-  //   })
-  // }
+  checkAccessToken(options) {
+    return apiRequest( API_ROOT + urlList.checkToken, options)
+  }
 }
 

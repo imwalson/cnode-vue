@@ -24,6 +24,22 @@ const router = new Router({
         title: '主题'
       }
     },
+    {
+      path: '/about',
+      component: resolve => require(['../view/about.vue'], resolve), // 关于
+      name: 'about',
+      meta: {
+        title: '关于'
+      }
+    },
+    {
+      path: '/login',
+      component: resolve => require(['../view/login.vue'], resolve), // 登录
+      name: 'login',
+      meta: {
+        title: '登录'
+      }
+    },
     
   ],
   scrollBehavior: function (to, from, savedPosition) {

@@ -11,18 +11,11 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
-  name: 'app',
-  mounted(){
-
-  },
-  methods: {
-    
-  }
+  name: 'app'
 }
 </script>
+
 <style lang="less" type="text/less" rel="stylesheet/less">
   /* 通用样式引入 */
   @import "assets/css/index.less";

@@ -17,6 +17,13 @@ export default {
   }, payload) {
     commit(type.SET_TOKEN, payload);
   },
+  // 设置全局token
+  setAccountInfo({            
+    commit,
+    state
+  }, payload) {
+    commit(type.SET_USER_INFO, payload);
+  },
   // 设置全局上下文CONTEXT
   setBrowserContext({            
     commit,

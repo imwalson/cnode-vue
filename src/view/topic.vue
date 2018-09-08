@@ -2,7 +2,7 @@
   <div class="page-topic">
     <mu-appbar style="width: 100%;">
       <mu-button icon slot="left" @click.native="goBack">
-        <mu-icon value=":fa fa-angle-left"></mu-icon>
+        <mu-icon value=":fa fa-chevron-left"></mu-icon>
       </mu-button>
       {{ title }}
     </mu-appbar>
@@ -234,9 +234,6 @@
 
   export default {
     name: 'topicPage',
-    components: {
-      
-    },
     mixins: [base],
     data () {
       return {

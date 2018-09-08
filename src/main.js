@@ -28,13 +28,26 @@ theme.use('teal');
 Vue.use(MuseUI);
 // 加载MuseUI插件
 import Toast from 'muse-ui-toast';
+Toast.config({
+  position: 'bottom',               // 弹出的位置
+  time: 2000,                       // 显示的时长
+  closeIcon: ':fa fa-remove',       // 关闭的图标
+  close: true,                      // 是否显示关闭按钮
+  successIcon: ':fa fa-check-circle',// 成功信息图标
+  infoIcon: ':fa fa-exclamation-circle',// 信息信息图标
+  warningIcon: ':fa fa-exclamation',// 提醒信息图标
+  errorIcon: ':fa fa-warning'       // 错误信息图标
+})
 import 'muse-ui-message/dist/muse-ui-message.css';
 import Message from 'muse-ui-message';
 import 'muse-ui-loading/dist/muse-ui-loading.css'; // load css
 import Loading from 'muse-ui-loading';
+Vue.use(Toast);
+Vue.use(Message);
+Vue.use(Loading);
 window.Toast = Toast;
-window.Loading= Loading;
-window.Message= Message;
+window.Loading = Loading;
+window.Message = Message;
 
 
 function autoFontSize() {

@@ -2,7 +2,7 @@
   <div class="page-index">
     <mu-appbar style="width: 100%;">
       <mu-button icon slot="left" @click.native="menuOpen = !menuOpen">
-        <mu-icon value=":fa fa-align-justify"></mu-icon>
+        <mu-icon value=":fa fa-reorder"></mu-icon>
       </mu-button>
       {{ title }}
     </mu-appbar>
@@ -52,10 +52,19 @@
       class="left-drawer"
     >
       <div class="user-info">
-        <mu-avatar class="avatar" :size="50">
-          <img src="../assets/img/man.jpg">
-        </mu-avatar>
-        <h3 class="user-name">请登录</h3>
+        <template v-if="!(userInfo && userInfo.id)">
+          <mu-avatar class="avatar" :size="50" @click.native="loginHandler">
+            <img src="../assets/img/man.jpg">
+          </mu-avatar>
+          <h3 class="user-name" @click="loginHandler">请登录</h3>
+        </template>
+
+        <template v-if="userInfo && userInfo.id">
+          <mu-avatar class="avatar" :size="50">
+            <img :src="userInfo.avatar_url">
+          </mu-avatar>
+          <h3 class="user-name">{{ userInfo.loginname || '' }}</h3>
+        </template>
       </div>
       <mu-divider></mu-divider>
       <mu-list>
@@ -82,7 +91,7 @@
           </mu-list-item-action>
           <mu-list-item-title>消息</mu-list-item-title>
         </mu-list-item>
-        <mu-list-item button :ripple="true">
+        <mu-list-item button :ripple="true" @click.native="onAboutClick">
           <mu-list-item-action>
             <mu-icon value=":fa fa-exclamation-circle"></mu-icon>
           </mu-list-item-action>
@@ -262,12 +271,13 @@
     mapGetters
   } from 'vuex'
   import base from '../mixins/base'
+  import user from '../mixins/user'
   import api from '../api'
   import _ from 'lodash'
 
   export default {
     name: 'indexPage',
-    mixins: [base],
+    mixins: [base,user],
     data () {
       return {
         title: '全部',
@@ -322,10 +332,8 @@
     computed: {
       ...mapGetters([
         'scrollTop',
+        'userInfo'
       ]),
-    },
-    created () {
-      
     },
     mounted(){
       this.initPageData();
@@ -377,6 +385,14 @@
           console.log(error);
         }
       },
+      onAboutClick() {
+        this.menuOpen = false;
+        this.navTo('/about');
+      },
+      loginHandler() {
+        this.menuOpen = false;
+        this.navTo('/login');
+      },
       // 获取帖子列表
       refresh (tab) {
         var _this = this;
@@ -401,7 +417,7 @@
               hasMore: (res.data.length < _this.pager.size) ? false : true
             };
             _this.topicList = res.data;
-            _this.activeMenu = tab;
+            _this.activeMenu = tab || 'all';
           }
         })
         .catch((error)=>{
