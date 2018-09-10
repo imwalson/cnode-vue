@@ -60,10 +60,10 @@
         </template>
 
         <template v-if="userInfo && userInfo.id">
-          <mu-avatar class="avatar" :size="50">
+          <mu-avatar class="avatar" :size="50" @click.native="toUserPage">
             <img :src="userInfo.avatar_url">
           </mu-avatar>
-          <h3 class="user-name">{{ userInfo.loginname || '' }}</h3>
+          <h3 class="user-name" @click="toUserPage">{{ userInfo.loginname || '' }}</h3>
         </template>
       </div>
       <mu-divider></mu-divider>
@@ -85,7 +85,7 @@
       </mu-list>
       <mu-divider></mu-divider>
       <mu-list>
-        <mu-list-item button :ripple="true">
+        <mu-list-item button :ripple="true" @click.native="onMessageClick">
           <mu-list-item-action>
             <mu-icon value=":fa fa-bell"></mu-icon>
           </mu-list-item-action>
@@ -343,11 +343,20 @@
     },
     methods: {
       ...mapActions([
+        'setAccountInfo',
+        'setAccessToken',
         'setScrollTop',
       ]),
       // 初始化页面数据
       initPageData() {
         var _this = this;
+        // 如果登录过，获取购物车数据
+        var token = this.getTokenNoRedirect();
+        if(token){
+          // store里设置用户信息
+          this.setAccessToken(token);
+          this.setAccountInfo(this.getUserInfo());
+        }
 
         this.refresh('all');
       },
@@ -389,9 +398,17 @@
         this.menuOpen = false;
         this.navTo('/about');
       },
+      onMessageClick() {
+        this.menuOpen = false;
+        this.navTo('/message');
+      },
       loginHandler() {
         this.menuOpen = false;
         this.navTo('/login');
+      },
+      toUserPage() {
+        this.menuOpen = false;
+        this.navTo('/user/' + this.userInfo.loginname);
       },
       // 获取帖子列表
       refresh (tab) {
@@ -418,6 +435,7 @@
             };
             _this.topicList = res.data;
             _this.activeMenu = tab || 'all';
+            _this.title = _this.tabMap[_this.activeMenu] || '全部';
           }
         })
         .catch((error)=>{

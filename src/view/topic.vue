@@ -10,7 +10,7 @@
     <div class="topic-content" v-if="topicData.author">
       <h3 class="topic-title bg-white">{{ topicData.title || '' }}</h3>
       <div class="info-area bg-white">
-        <div class="avator">
+        <div class="avator" @click="navTo('/user/' + topicData.author.loginname)">
           <img :src="topicData.author.avatar_url">
         </div>
         <div class="author">
@@ -18,6 +18,17 @@
           <span class="name">{{ topicData.author.loginname }}</span>
         </div>
         <div class="post-time">{{ timeagoDate(topicData.create_at) }}创建•{{ topicData.visit_count }}次浏览</div>
+
+        <div 
+          v-if="!topicData.is_collect" 
+          class="star-btn fa fa-heart-o" 
+          @click="addToFavorite" 
+        ></div>
+        <div 
+          v-if="topicData.is_collect" 
+          class="star-btn active fa fa-heart" 
+          @click="removeFavorite" 
+        ></div>
       </div>
       <div class="markdown-body bg-white" v-html="topicData.content || ''"></div>
 
@@ -27,18 +38,24 @@
           <div class="reply-title">{{ topicData.replies.length }}条回复</div>
           <div class="reply-list">
             <div 
-              v-for="item in topicData.replies"
+              v-for="(item,index) in topicData.replies"
               :key="item.id"
               class="reply-item ui-border-t"
             >
               <div class="header">
-                <div class="avator">
+                <div class="avator" @click="navTo('/user/' + item.author.loginname)">
                   <img :src="item.author.avatar_url">
                 </div>
                 <div class="author">
                   <span class="name">{{ item.author.loginname }}</span>
                 </div>
                 <div class="post-time">{{ timeagoDate(item.create_at) }}</div>
+
+                <div class="up-icon">
+                  <span class="fa fa-thumbs-up" v-if="item.is_uped" @click="cancelUpReply(index,item.id)"></span>
+                  <span class="fa fa-thumbs-o-up" v-if="!item.is_uped" @click="upReply(index,item.id)"></span>
+                  <span>{{ item.ups.length }}</span>
+                </div>
               </div>
               <div class="content">
                 <div class="markdown-body bg-white" v-html="item.content || ''"></div>
@@ -77,6 +94,21 @@
       .info-area {
         position: relative;
         height: 40px;
+
+        .star-btn {
+          position: absolute;
+          width: 30px;
+          height: 30px;
+          line-height: 30px;
+          right: 20px;
+          top: 5px;
+          color: #666;
+          font-size: 20px;
+          text-align: right;
+        }
+        .star-btn.active {
+          color: @uiColorRed;
+        }
 
         .avator {
           position: absolute;
@@ -180,6 +212,22 @@
             padding: 15px 0;
             height: 70px;
 
+            .up-icon {
+              position: absolute;
+              width: 40px;
+              height: 20px;
+              line-height: 20px;
+              right: 20px;
+              top: 25px;
+              color: #34495e;
+              font-size: 14px;
+
+              .fa {
+                font-size: 20px;
+                padding-right: 5px;
+              }
+            }
+
             .avator {
               position: absolute;
               width: 40px;
@@ -228,13 +276,19 @@
 </style>
 
 <script>
+  import {
+    mapActions,
+    mapState,
+    mapGetters
+  } from 'vuex'
   import base from '../mixins/base'
+  import user from '../mixins/user'
   import api from '../api'
   import _ from 'lodash'
 
   export default {
     name: 'topicPage',
-    mixins: [base],
+    mixins: [base,user],
     data () {
       return {
         title: '主题',
@@ -247,6 +301,11 @@
         topicId: '',
         topicData: {}
       }
+    },
+    computed: {
+      ...mapGetters([
+        'userInfo'
+      ]),
     },
     mounted(){
       this.initPageData();
@@ -263,12 +322,16 @@
         var _this = this;
         try {
           // 检查token
-          // let token = this.getToken();
-          // if(!token){
-            
-          //   return;
-          // }
-          api.getTopicDetails(this.topicId).then(function(res){
+          let token = this.getTokenNoRedirect() || '';
+          let options = {
+            params: {
+              mdrender: true
+            }
+          };
+          if(token){
+            options.params.accesstoken = token;
+          }
+          api.getTopicDetails(this.topicId,options).then(function(res){
             if(res.success){
               _this.topicData = res.data;
               cb && cb(res.data);
@@ -282,6 +345,90 @@
           console.log(error);
         }
       },
+      // 添加收藏
+      addToFavorite() {
+        var _this = this;
+        let token = this.getTokenNoRedirect() || '';
+        if(!token) return;
+        api.addCollect({
+          method: 'post',
+          data: {
+            accesstoken: token,
+            topic_id: this.topicId
+          }
+        }).then(function(res){
+          if(res.success){
+            _this.topicData.is_collect = true;
+            _this.$toast.success('收藏成功');
+          }else{
+            _this.$toast.success('收藏失败');
+          }
+        }).catch(function(error){
+          console.log(error);
+          _this.$toast.success('收藏失败');
+        })
+      },
+      // 取消收藏
+      removeFavorite() {
+        var _this = this;
+        let token = this.getTokenNoRedirect() || '';
+        if(!token) return;
+        api.delCollect({
+          method: 'post',
+          data: {
+            accesstoken: token,
+            topic_id: this.topicId
+          }
+        }).then(function(res){
+          if(res.success){
+            _this.topicData.is_collect = false;
+            _this.$toast.success('取消收藏成功');
+          }else{
+            _this.$toast.success('取消收藏失败');
+          }
+        }).catch(function(error){
+          console.log(error);
+          _this.$toast.success('取消收藏失败');
+        })
+      },
+      // 评论点赞
+      upReply(index,id) {
+        var _this = this;
+        let token = this.getTokenNoRedirect() || '';
+        if(!token) return;
+        api.replyUps(id,{
+          method: 'post',
+          data: {
+            accesstoken: token
+          }
+        }).then(function(res){
+          if(res.success){
+            _this.topicData.replies[index].is_uped = true;
+            _this.topicData.replies[index].ups.push(_this.userInfo.id);
+          }
+        }).catch(function(error){
+          console.log(error);
+        })
+      },
+      // 评论取消点赞
+      cancelUpReply(index,id) {
+        var _this = this;
+        let token = this.getTokenNoRedirect() || '';
+        if(!token) return;
+        api.replyUps(id,{
+          method: 'post',
+          data: {
+            accesstoken: token
+          }
+        }).then(function(res){
+          if(res.success){
+            _this.topicData.replies[index].is_uped = false;
+            _this.topicData.replies[index].ups.splice(_this.topicData.replies[index].ups.length-1,1);
+          }
+        }).catch(function(error){
+          console.log(error);
+        })
+      }
     },
   }
 </script>

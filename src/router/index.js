@@ -40,6 +40,22 @@ const router = new Router({
         title: '登录'
       }
     },
+    {
+      path: '/user/:username',
+      component: resolve => require(['../view/user.vue'], resolve), // 用户信息
+      name: 'user',
+      meta: {
+        title: '用户信息'
+      }
+    },
+    {
+      path: '/message',
+      component: resolve => require(['../view/message.vue'], resolve), // 消息
+      name: 'message',
+      meta: {
+        title: '消息'
+      }
+    },
     
   ],
   scrollBehavior: function (to, from, savedPosition) {

@@ -12,11 +12,11 @@
         <h3 class="title">关于项目</h3>
         <p class="desc">该项目基于Cnodejs的api，采用vue2.0全家桶构建。</p>
       </div>
-      <div class="section ui-border-b">
+      <div class="section ui-border-b" @click="linkTo('https://github.com/imwalson/cnode-vue')">
         <h3 class="title">开源主页</h3>
         <p class="desc">https://github.com/imwalson/cnode-vue</p>
       </div>
-      <div class="section ui-border-b">
+      <div class="section ui-border-b" @click="linkTo('https://cnodejs.org')">
         <h3 class="title">CNode社区官网</h3>
         <p class="desc">https://cnodejs.org</p>
       </div>
@@ -79,5 +79,10 @@
         title: '关于',
       }
     },
+    methods: {
+      linkTo(url) {
+        location.assign(url);
+      }
+    }
   }
 </script>
