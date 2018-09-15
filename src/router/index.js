@@ -56,6 +56,14 @@ const router = new Router({
         title: '消息'
       }
     },
+    {
+      path: '/add',
+      component: resolve => require(['../view/add.vue'], resolve), // 发布主题
+      name: 'add',
+      meta: {
+        title: '发布'
+      }
+    },
     
   ],
   scrollBehavior: function (to, from, savedPosition) {

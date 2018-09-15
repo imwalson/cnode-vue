@@ -4,10 +4,15 @@
       <mu-button icon slot="left" @click.native="menuOpen = !menuOpen">
         <mu-icon value=":fa fa-reorder"></mu-icon>
       </mu-button>
+      <!-- <mu-button flat slot="right" @click.native="navTo('/add')">发布</mu-button> -->
       {{ title }}
     </mu-appbar>
 
     <div class="main-container" ref="container" @scroll="onContainerScroll($event)">
+      <mu-button class="add-icon" fab color="primary"  @click.native="navTo('/add')">
+        <mu-icon value=":fa fa-plus"></mu-icon>
+      </mu-button>
+      
       <mu-load-more 
         class="topic-list-container" 
         @refresh="refresh" 
@@ -149,6 +154,13 @@
       overflow: auto;
       -webkit-overflow-scrolling: touch;
       min-height: 400px;
+
+      .add-icon {
+        position: fixed;
+        bottom: 25px;
+        right: 15px;
+        z-index: 20;
+      }
 
       .topic-list {
         background: #EDEDED;
@@ -324,6 +336,11 @@
             value: 'job',
             icon: ':fa fa-users',
             name: '招聘'
+          },
+          {
+            value: 'dev',
+            icon: ':fa fa-code',
+            name: '客户端测试'
           },
         ],
         showScrollTop: false

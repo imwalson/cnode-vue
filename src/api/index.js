@@ -68,5 +68,11 @@ export default {
   getMessages(options) {
     return apiRequest( API_ROOT + urlList.messages, options)
   },
+  /**
+   * 发布文章
+   */
+  addTopic(options) {
+    return apiRequest( API_ROOT + urlList.TopicList, options)
+  },
 }
 
