@@ -55,6 +55,7 @@
       flex: 1;
       overflow: auto;
       -webkit-overflow-scrolling: touch;
+      padding-top: 20px;
 
       .form-row {
         padding: 0 15px;

@@ -1,6 +1,10 @@
 <template>
   <div class="page-login">
     <mu-appbar style="width: 100%;">
+      <mu-button icon slot="left" @click.native="goBack">
+        <mu-icon value=":fa fa-chevron-left"></mu-icon>
+      </mu-button>
+      <mu-button icon slot="right"></mu-button>
       {{ title }}
     </mu-appbar>
 
@@ -86,6 +90,9 @@
         accessToken: '',
         redirect: '/'
       }
+    },
+    mounted(){
+      this.redirect = this.$route.query.redirect || '';
     },
     methods: {
       ...mapActions([

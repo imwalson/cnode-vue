@@ -61,7 +61,8 @@ const router = new Router({
       component: resolve => require(['../view/add.vue'], resolve), // 发布主题
       name: 'add',
       meta: {
-        title: '发布'
+        title: '发布',
+        auth: true
       }
     },
     
@@ -85,25 +86,41 @@ const router = new Router({
   }
 })
 
-// router.beforeEach((to, from, next) => {
-//   // 权限拦截
-//   const $cookie = router.app.$cookie;
-//   if(to.meta.auth){
-//     let token = $cookie.get('token') || '';
-//     let browserContext = store.state.global.browserContext || '';
-
-//     // 无token就跳到登录
-//     if(!token){
-      
-//     }else {
-//       // 有token但无权限也跳到登录
-      
-//     }
-//   }
-//   else {
-//     next();
-//   }
-// })
+router.beforeEach((to, from, next) => {
+  // 权限拦截
+  const $cookie = router.app.$cookie;
+  if(to.meta.auth){
+    let token = $cookie.get('token') || '';
+    // 无token就跳到登录
+    if(!token){
+      next({
+        path: '/login',
+        query: {redirect: to.fullPath}
+      })
+    }else {
+      // 有token也需要验证权限
+      api.checkAccessToken({
+        method: 'post',
+        data: {
+          accesstoken: token
+        }
+      }).then((res)=>{
+        if(res.success){
+          next();
+        }
+      }).catch((err)=>{
+        console.log(err);
+        next({
+          path: '/login',
+          query: {redirect: to.fullPath}
+        })
+      })
+    }
+  }
+  else {
+    next();
+  }
+})
 
 router.afterEach((to, from) => {
   // 更改页面title
