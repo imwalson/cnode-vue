@@ -117,7 +117,7 @@
     font-size: 14px;
     color: #34495e;
   }
-  .close-btn {
+  .page-topic-reply-sheet .header .close-btn {
     position: absolute;
     left: 0;
     width: 40px;
@@ -141,7 +141,7 @@
     width: 100%;
   }
   .page-topic-float-icon {
-    position: fixed;
+    position: fixed !important;
     bottom: 25px;
     right: 15px;
     z-index: 20;
@@ -530,6 +530,8 @@
         })
       },
       reply(id,user) {
+        var token = this.getToken() || '';
+        if(!token) return;
         this.openReply = true;
         this.replyId = id || '';
         this.replyUser = user || '';
@@ -541,7 +543,7 @@
       submitReply() {
         // 检查 token
         var _this = this;
-        let token = this.getToken() || '';
+        var token = this.getToken() || '';
         if(!token) return;
         if(!this.replyContent){
           this.$toast.error('请输入评论内容');
