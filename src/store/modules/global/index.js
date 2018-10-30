@@ -8,7 +8,7 @@ const state = {
   scrollTop: 0,
   userInfo: {},
   token: '' ,
-  // 所处环境： 'WECHAT'、  'ALIPAY'、 'CUSTOM'
+  // 所处环境： 'WECHAT'、  'ALIPAY'、 'CUSTOM' 、 'QA'
   browserContext: 'CUSTOM'
 };
 

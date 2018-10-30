@@ -348,12 +348,19 @@
     },
     computed: {
       ...mapGetters([
+        'browserContext',
         'scrollTop',
         'userInfo'
       ]),
     },
     mounted(){
       this.initPageData();
+      if(this.browserContext != 'QA') return;
+      if ( window.system && window.system.postMessage) {
+        window.system.postMessage( 'vue spa index page loaed' );
+      }else{
+        alert('system.postMessage not defined')
+      }
     },
     activated(){
       this.recoverScrollPosition();

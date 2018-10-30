@@ -22,10 +22,13 @@ export default {
     // 设置全局浏览器环境上下文
     let ua = navigator.userAgent || '';
     let context = 'CUSTOM';
+
     if(this.isWeixin(ua)) {
       context = 'WECHAT';
     }else if (this.isAlipay(ua)) {
       context = 'ALIPAY';
+    }else if (this.isQa(ua)) {
+      context = 'QA';
     }
     this.setBrowserContext(context);
   },
@@ -40,6 +43,10 @@ export default {
      */
     isWeixin(ua){
       var reg = /MicroMessenger/i;
+      return reg.test(ua);
+    },
+    isQa(ua){
+      var reg = /hap\//i;
       return reg.test(ua);
     },
     isAlipay(ua){

@@ -23,6 +23,9 @@
         <div class="form-row">
           <mu-button full-width color="primary" @click.native="submit">登录</mu-button>
         </div>
+        <div class="form-row" v-if="browserContext === 'QA'">
+          <mu-button full-width @click.native="qaScanQr">扫码登录</mu-button>
+        </div>
       </div>
     </div>
   </div>
@@ -77,12 +80,13 @@
   } from 'vuex'
   import base from '../mixins/base'
   import user from '../mixins/user'
+  import quickapp from '../mixins/quickapp'
   import api from '../api'
   import _ from 'lodash'
 
   export default {
     name: 'loginPage',
-    mixins: [base,user],
+    mixins: [base,user,quickapp],
     data () {
       return {
         title: '登录',
@@ -91,8 +95,20 @@
         redirect: '/'
       }
     },
+    computed: {
+      ...mapGetters([
+        'browserContext',
+      ]),
+    },
     mounted(){
       this.redirect = this.$route.query.redirect || '';
+
+      if(this.browserContext != 'QA') return;
+      if ( window.system && window.system.postMessage) {
+        window.system.postMessage( 'vue spa login page loaed' );
+      }else{
+        alert('system.postMessage not defined')
+      }
     },
     methods: {
       ...mapActions([
@@ -105,6 +121,19 @@
         }else{
           this.error = '';
         }
+      },
+      qaScanQr() {
+        //alert(this.browserContext)
+        if(this.browserContext != 'QA') return;
+        this.qrRes = '';
+        if ( window.system && window.system.postMessage) {
+          window.system.postMessage( JSON.stringify({
+            type: 'openQr'
+          }) );
+        }else{
+          alert('system.postMessage not defined')
+        }
+        
       },
       submit() {
         var _this = this;
@@ -140,5 +169,12 @@
         })
       }
     },
+    watch: {
+      qrRes: function(val,oldVal){
+        if(val){
+          this.accessToken = val;
+        }
+      },
+    }
   }
 </script>

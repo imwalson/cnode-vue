@@ -59,6 +59,12 @@ export default {
   /**
    * 评论点赞/取消点赞
    */
+  sendReply(topicId,options) {
+    return apiRequest( `${API_ROOT}/topic/${topicId}/replies` , options)
+  },
+  /**
+   * 新建评论
+   */
   replyUps(id,options) {
     return apiRequest( `${API_ROOT}/reply/${id}/ups` , options)
   },

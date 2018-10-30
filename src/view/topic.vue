@@ -8,6 +8,34 @@
     </mu-appbar>
 
     <div class="topic-content" v-if="topicData.author">
+      <mu-button class="page-topic-float-icon" fab color="primary"  @click.native="reply()">
+        <mu-icon value=":fa fa-mail-reply"></mu-icon>
+      </mu-button>
+      <mu-bottom-sheet class="page-topic-reply-sheet bg-white" :overlay-close="false" :open.sync="openReply">
+        <div class="container ">
+          <div class="header">
+            <mu-button class="close-btn" icon @click.native="closeBottomSheet">
+              <mu-icon value=":fa fa-close"></mu-icon>
+            </mu-button>
+            <span class="title">发表回复</span>
+            <mu-button class="send-btn" color="primary" icon @click.native="submitReply">
+              <mu-icon value=":fa fa-paper-plane"></mu-icon>
+            </mu-button>
+          </div>
+          <mu-text-field 
+            v-model="replyContent" 
+            multi-line 
+            :rows="6"  
+            full-width
+            color="primary"
+            placeholder="说点什么吧"
+            class="reply-textfield"
+          >
+          </mu-text-field>
+        </div>
+      </mu-bottom-sheet>
+
+
       <h3 class="topic-title bg-white">{{ topicData.title || '' }}</h3>
       <div class="info-area bg-white">
         <div class="avator" @click="navTo('/user/' + topicData.author.loginname)">
@@ -56,6 +84,9 @@
                   <span class="fa fa-thumbs-o-up" v-if="!item.is_uped" @click="upReply(index,item.id)"></span>
                   <span>{{ item.ups.length }}</span>
                 </div>
+                <div class="reply-icon">
+                  <span class="fa fa-mail-reply" @click="reply(item.id,item.author.loginname)"></span>
+                </div>
               </div>
               <div class="content">
                 <div class="markdown-body bg-white" v-html="item.content || ''"></div>
@@ -67,6 +98,55 @@
     </div>
   </div>
 </template>
+
+<style>
+  .page-topic-reply-sheet {
+    width: 100%;
+  }
+  .page-topic-reply-sheet .header {
+    height: 60px;
+    width: 100%;
+    position: relative;
+    background-color: #ffffff;
+    text-align: center;
+  }
+  .page-topic-reply-sheet .header .title {
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+    font-size: 14px;
+    color: #34495e;
+  }
+  .close-btn {
+    position: absolute;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 20px;
+    color: #34495e;
+  }
+  .page-topic-reply-sheet .header .send-btn {
+    position: absolute;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 20px;
+    color: #42b983;
+  }
+
+  .page-topic-reply-sheet .reply-textfield {
+    display: block;
+    width: 100%;
+  }
+  .page-topic-float-icon {
+    position: fixed;
+    bottom: 25px;
+    right: 15px;
+    z-index: 20;
+  }
+</style>
 
 
 <style lang="less">
@@ -214,11 +294,25 @@
 
             .up-icon {
               position: absolute;
-              width: 40px;
+              width: 100px;
               height: 20px;
               line-height: 20px;
               right: 20px;
-              top: 25px;
+              top: 30px;
+
+              .fa {
+                font-size: 20px;
+                padding-right: 5px;
+              }
+            }
+
+            .reply-icon {
+              position: absolute;
+              width: 40px;
+              height: 20px;
+              line-height: 20px;
+              right: 0;
+              top: 30px;
               color: #34495e;
               font-size: 14px;
 
@@ -285,6 +379,7 @@
   import user from '../mixins/user'
   import api from '../api'
   import _ from 'lodash'
+  import h2m from 'h2m';
 
   export default {
     name: 'topicPage',
@@ -299,7 +394,12 @@
           good: '精华'
         },
         topicId: '',
-        topicData: {}
+        topicData: {},
+        openReply: false,
+        replyContent: '',
+        replyImgs: [],
+        replyId: '',
+        replyUser: '',
       }
     },
     computed: {
@@ -428,7 +528,56 @@
         }).catch(function(error){
           console.log(error);
         })
+      },
+      reply(id,user) {
+        this.openReply = true;
+        this.replyId = id || '';
+        this.replyUser = user || '';
+        this.replyContent = '';
+      },
+      closeBottomSheet() {
+        this.openReply = false;
+      },
+      submitReply() {
+        // 检查 token
+        var _this = this;
+        let token = this.getToken() || '';
+        if(!token) return;
+        if(!this.replyContent){
+          this.$toast.error('请输入评论内容');
+          return;
+        }
+
+        var replyContent = this.replyContent;
+        if(this.replyUser){
+          replyContent = h2m(`<p><a href="/user/${this.replyUser}">@${this.replyUser}</a></p><br>  `) + replyContent;
+        }
+        var data = {
+          accesstoken: token,
+          content: replyContent
+        };
+        if(this.replyId){
+          data.reply_id = this.replyId;
+        }
+
+        api.sendReply(this.topicId, {
+          method: 'post',
+          data: data
+        }).then(function(res){
+          if(res.success){
+            _this.$toast.success('评论成功');
+            _this.closeBottomSheet();
+            _this.initPageData();
+          }else{
+            _this.closeBottomSheet();
+            _this.$toast.error('评论失败');
+          }
+        }).catch(function(error){
+          _this.$toast.error(error.message);
+          _this.closeBottomSheet();
+        })
       }
+
     },
   }
 </script>
