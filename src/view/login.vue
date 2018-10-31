@@ -101,7 +101,7 @@
       ]),
     },
     mounted(){
-      this.redirect = this.$route.query.redirect || '';
+      this.redirect = this.$route.query.redirect || '/';
 
       if(this.browserContext != 'QA') return;
       if ( window.system && window.system.postMessage) {

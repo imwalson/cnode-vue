@@ -15,7 +15,7 @@
       
       <mu-load-more 
         class="topic-list-container" 
-        @refresh="refresh" 
+        @refresh="refresh(activeMenu)" 
         :refreshing="refreshing" 
         :loading="loading" 
         @load="loadMore"
@@ -283,13 +283,14 @@
     mapGetters
   } from 'vuex'
   import base from '../mixins/base'
+  import quickapp from '../mixins/quickapp'
   import user from '../mixins/user'
   import api from '../api'
   import _ from 'lodash'
 
   export default {
     name: 'indexPage',
-    mixins: [base,user],
+    mixins: [base,quickapp,user],
     data () {
       return {
         title: '全部',
@@ -355,11 +356,12 @@
     },
     mounted(){
       this.initPageData();
-      if(this.browserContext != 'QA') return;
-      if ( window.system && window.system.postMessage) {
-        window.system.postMessage( 'vue spa index page loaed' );
-      }else{
-        alert('system.postMessage not defined')
+      if(this.browserContext === 'QA') {
+        if ( window.system && window.system.postMessage) {
+          window.system.postMessage( 'vue spa index page loaed' );
+        }else{
+          alert('system.postMessage not defined')
+        }
       }
     },
     activated(){
@@ -382,7 +384,7 @@
           this.setAccountInfo(this.getUserInfo());
         }
 
-        this.refresh('all');
+        this.refresh( this.activeMenu );
       },
       nemuClickHandler(index) {
         var _this = this;

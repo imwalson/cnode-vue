@@ -16,10 +16,21 @@ export default {
           console.log("message received: " + data);
           alert("message received: " + data);
           try { data = JSON.parse(data); } catch (error) {}
-          if( data.type === 'qr' ){ 
-            _this.qrRes = data.data || '';
-          }else if( data.type === 'pickImage' ){ 
-            _this.pickImage = data.data || '';
+          switch (data.type) {
+            case 'qr':
+              _this.qrRes = data.data || '';
+              break;
+            case 'pickImage':
+              _this.pickImage = data.data || '';
+              break;
+            case 'route':
+              var path = data.data || '';
+              if(path) {
+                router.replace( decodeURIComponent(path) );
+              }
+              break;  
+            default:
+              break;
           }
         };
       } catch (error) {

@@ -144,7 +144,11 @@ export default {
       history.back();
     },
     goBack() {
-      router.back();
+      if(window.history.length > 1){
+        router.back();
+      }else{
+        this.redirectTo('/')
+      }
     },
     navTo(route,e) {
       if(!route) return;
