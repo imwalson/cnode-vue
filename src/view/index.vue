@@ -472,7 +472,6 @@
       loadMore () {
         var _this = this;
         this.loading = true;
-
         var options = {
           params: {
             page: _this.pager.page + 1,

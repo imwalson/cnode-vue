@@ -136,19 +136,20 @@
       
     },
     methods: {
+      // 图片上传，使用免费的 sm.ms 图床
       handleImageAdded(file, Editor, cursorLocation) {
         var formData = new FormData();
-        formData.append('image', file)
+        formData.append('smfile', file)
 
         axios({
-          url: 'https://ipfs.pokuton.com/imgupload',
+          url: 'https://sm.ms/api/upload',
           method: 'POST',
           headers:{},
           data: formData
         })
         .then((result) => {
           console.log(result);
-          let url = result.data.url;
+          let url = result.data.data.url;
           Editor.insertEmbed(cursorLocation, 'image', url);
         })
         .catch((err) => {

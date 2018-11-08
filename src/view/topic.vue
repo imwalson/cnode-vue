@@ -12,7 +12,7 @@
         <mu-icon value=":fa fa-mail-reply"></mu-icon>
       </mu-button>
       <mu-bottom-sheet class="page-topic-reply-sheet bg-white" :overlay-close="false" :open.sync="openReply">
-        <div class="container ">
+        <div class="reply-sheet-container">
           <div class="header">
             <mu-button class="close-btn" icon @click.native="closeBottomSheet">
               <mu-icon value=":fa fa-close"></mu-icon>
@@ -22,7 +22,7 @@
               <mu-icon value=":fa fa-paper-plane"></mu-icon>
             </mu-button>
           </div>
-          <mu-text-field 
+          <!-- <mu-text-field 
             v-model="replyContent" 
             multi-line 
             :rows="6"  
@@ -31,7 +31,16 @@
             placeholder="说点什么吧"
             class="reply-textfield"
           >
-          </mu-text-field>
+          </mu-text-field> -->
+          <vue-editor 
+            id="editor"
+            class="reply-textfield"
+            useCustomImageHandler
+            :editorToolbar="customToolbar"
+            @imageAdded="handleImageAdded" 
+            v-model="replyContent"
+            >
+          </vue-editor>
         </div>
       </mu-bottom-sheet>
 
@@ -139,6 +148,11 @@
   .page-topic-reply-sheet .reply-textfield {
     display: block;
     width: 100%;
+    padding: 0 10px;
+    margin-bottom: 10px;
+  }
+  .reply-sheet-container {
+    padding: 0;
   }
   .page-topic-float-icon {
     position: fixed !important;
@@ -380,10 +394,15 @@
   import api from '../api'
   import _ from 'lodash'
   import h2m from 'h2m';
+  import axios from 'axios'
+  import {VueEditor} from 'vue2-editor'
 
   export default {
     name: 'topicPage',
     mixins: [base,user],
+    components: {
+      VueEditor
+    },
     data () {
       return {
         title: '主题',
@@ -400,6 +419,19 @@
         replyImgs: [],
         replyId: '',
         replyUser: '',
+        customToolbar: [
+          [
+            'bold', 
+            'italic', 
+            'underline', 
+            'blockquote',
+            // { 'size': ['small', false, 'large', 'huge'] },
+            // { 'color': [] }, 
+            // { 'background': [] }
+          ],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['image', 'link', 'code-block', ]
+        ]
       }
     },
     computed: {
@@ -444,6 +476,26 @@
         } catch (error) {
           console.log(error);
         }
+      },
+      // 图片上传，使用免费的 sm.ms 图床
+      handleImageAdded(file, Editor, cursorLocation) {
+        var formData = new FormData();
+        formData.append('smfile', file)
+
+        axios({
+          url: 'https://sm.ms/api/upload',
+          method: 'POST',
+          headers:{},
+          data: formData
+        })
+        .then((result) => {
+          console.log(result);
+          let url = result.data.data.url;
+          Editor.insertEmbed(cursorLocation, 'image', url);
+        })
+        .catch((err) => {
+          console.log(err);
+        })
       },
       // 添加收藏
       addToFavorite() {
@@ -550,7 +602,7 @@
           return;
         }
 
-        var replyContent = this.replyContent;
+        var replyContent = h2m(this.replyContent);
         if(this.replyUser){
           replyContent = h2m(`<p><a href="/user/${this.replyUser}">@${this.replyUser}</a></p><br>  `) + replyContent;
         }

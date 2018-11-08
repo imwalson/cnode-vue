@@ -14,7 +14,7 @@ export default {
         // 监听快应用消息
         system.onmessage = function (data) {
           console.log("message received: " + data);
-          alert("message received: " + data);
+          // alert("message received: " + data);
           try { data = JSON.parse(data); } catch (error) {}
           switch (data.type) {
             case 'qr':

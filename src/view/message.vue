@@ -28,12 +28,17 @@
             v-for="item in messageList.has_read_messages" 
             :key="item.id"
           >
-            <div class="avator">
-              <img :src="item.author.avatar_url">
+            <div class="message-info">
+              <div class="avator">
+                <img :src="item.author.avatar_url">
+              </div>
+              <h3 class="title ui-ellipsis">{{ item.author.loginname }}</h3>
+              <div class="post-time">{{ timeagoDate(item.reply.create_at) }}</div>
             </div>
-            <h3 class="title ui-ellipsis">{{ item.topic.title }}</h3>
-            <div class="author">{{ item.reply.content || '' }}</div>
-            <div class="post-time">{{ timeagoDate(item.reply.create_at) }}</div>
+            <div class="message-content" v-html="item.reply.content"></div>
+            <div class="topic-info">
+              <div class="topic-title" @click="navTo('/topic/' + item.topic.id)">话题：{{ item.topic.title }}</div>
+            </div>
           </div>
         </div>
         <div class="empty" v-if="!(messageList.has_read_messages && messageList.has_read_messages.length)">
@@ -48,12 +53,17 @@
             v-for="item in messageList.hasnot_read_messages" 
             :key="item.id"
           >
-            <div class="avator">
-              <img :src="item.author.avatar_url">
+            <div class="message-info">
+              <div class="avator">
+                <img :src="item.author.avatar_url">
+              </div>
+              <h3 class="title ui-ellipsis">{{ item.author.loginname }}</h3>
+              <div class="post-time">{{ timeagoDate(item.reply.create_at) }}</div>
             </div>
-            <h3 class="title ui-ellipsis">{{ item.topic.title }}</h3>
-            <div class="author">{{ item.reply.content || '' }}</div>
-            <div class="post-time">{{ timeagoDate(item.reply.create_at) }}</div>
+            <div class="message-content" v-html="item.reply.content"></div>
+            <div class="topic-info">
+              <div class="topic-title" @click="navTo('/topic/' + item.topic.id)">话题：{{ item.topic.title }}</div>
+            </div>
           </div>
         </div>
         <div class="empty" v-if="!(messageList.hasnot_read_messages && messageList.hasnot_read_messages.length)">
@@ -93,51 +103,73 @@
         padding: 0;
 
         .message-item {
-          position: relative;
-          height: 80px;
+          overflow: hidden;
+          padding-bottom: 15px;
 
-          .avator {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            overflow: hidden;
-            left: 15px;
-            top: 20px;
+          .message-info {
+            position: relative;
+            height: 80px;
 
-            img {
-              display: block;
+            .avator {
+              position: absolute;
               width: 40px;
               height: 40px;
+              border-radius: 20px;
+              overflow: hidden;
+              left: 15px;
+              top: 20px;
+
+              img {
+                display: block;
+                width: 40px;
+                height: 40px;
+              }
+            }
+            .title {
+              position: absolute;
+              height: 20px;
+              line-height: 20px;
+              left: 70px;
+              right: 15px;
+              top: 20px;
+              font-size: 16px;
+              color: #2c3e50;
+            }
+            .author {
+              position: absolute;
+              height: 20px;
+              line-height: 20px;
+              left: 70px;
+              bottom: 15px;
+              font-size: 13px;
+              color: #626262;
+            }
+            .post-time {
+              position: absolute;
+              height: 20px;
+              line-height: 20px;
+              left: 70px;
+              bottom: 15px;
+              font-size: 13px;
+              color: @uiColorPrimary;
             }
           }
-          .title {
-            position: absolute;
-            height: 20px;
-            line-height: 20px;
-            left: 70px;
-            right: 15px;
-            top: 20px;
-            font-size: 16px;
-            color: #2c3e50;
+          
+          .message-content {
+            padding: 0 15px;
           }
-          .author {
-            position: absolute;
-            height: 20px;
-            line-height: 20px;
-            left: 70px;
-            bottom: 15px;
-            font-size: 13px;
-            color: #626262;
-          }
-          .post-time {
-            position: absolute;
-            height: 20px;
-            line-height: 20px;
-            right: 15px;
-            bottom: 15px;
-            font-size: 13px;
-            color: @uiColorPrimary;
+          .topic-info {
+            padding: 0 15px;
+            margin-top: 10px;
+
+            .topic-title {
+              padding: 6px;
+              background-color: #eeeeee;
+              border-radius: 3px;
+              line-height: 1.5;
+              font-size: 14px;
+              font-size: #232323;
+            }
           }
         }
       }
